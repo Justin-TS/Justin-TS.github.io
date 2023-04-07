@@ -101,15 +101,15 @@
     }
 
     function update() {
-      if (gameOver) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (gameOver) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.font = '48px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 50);
-        ctx.font = '36px Arial';
+    ctx.font = '48px Arial';
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 50);
+    ctx.font = '36px Arial';
     ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 50);
 
     ctx.font = '24px Arial';
@@ -117,6 +117,58 @@
 
     return;
   }
+
+  timer++;
+
+  if (timer > 600) {
+    level++;
+    timer = 0;
+  }
+
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+  rabbit.draw();
+
+  if (random(1, 100) <= 10 * level) {
+    obstacles.push(new Obstacle());
+  }
+
+  obstacles.forEach(obstacle => {
+    obstacle.draw();
+    if (collides(rabbit, obstacle)) {
+      gameOver = true;
+      ctx.font = '36px Arial';
+      ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 50);
+
+      ctx.font = '24px Arial';
+      ctx.fillText('Press "R" to restart', canvas.width / 2, canvas.height / 2 + 100);
+    }
+    obstacle.y += level;
+  });
+
+  obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+
+  if (random(1, 100) <= 5 * level) {
+    carrots.push(new Carrot());
+  }
+
+  carrots.forEach(carrot => {
+    carrot.draw();
+    if (collides(rabbit, carrot)) {
+      score++;
+      carrots = carrots.filter(c => c !== carrot);
+    }
+    carrot.y += level;
+  });
+
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'white';
+  ctx.fillText(`Score: ${score}`, 10, 30);
+  ctx.fillText(`Level: ${level}`, 10, 60);
+
+  requestAnimationFrame(update);
+}
+
 
   timer++;
 
