@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rabbit Platformer Game</title>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="600" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const bgImg = new Image();
+    bgImg.src = 'https://i.imgur.com/3tKwJ5d.png';
+
+    const carrotImg = new Image();
+    carrotImg.src = 'https://i.imgur.com/mxVzoWp.png';
+
+    const obstacleImg = new Image();
+    obstacleImg.src = 'https://i.imgur.com/ulX6SxS.png';
+
+    let score = 0;
+    let level = 1;
+    let timer = 0;
+    let gameOver = false;
+
+    class Rabbit {
+      constructor() {
+        this.x = 50;
+        this.y = canvas.height - 150;
+        this.width = 50;
+        this.height = 75;
+        this.speed = 10;
+        this.jumpHeight = 150;
+        this.isJumping = false;
+        this.jumpCount = 0;
+      }
+
+      moveLeft() {
+        this.x -= this.speed;
+        if (this.x < 0) {
+          this.x = 0;
+        }
+      }
+
+      moveRight() {
+        this.x += this.speed;
+        if (this.x > canvas.width - this.width) {
+          this.x = canvas.width - this.width;
+        }
+      }
+
+      jump() {
+        if (this.isJumping) {
+          this.y -= this.jumpHeight;
+          this.jumpCount++;
+          if (this.jumpCount >= 2) {
+            this.isJumping = false;
+            this.jumpCount = 0;
+          }
+        }
+      }
+
+      draw() {
+        const img = new Image();
+        img.src = 'https://i.imgur.com/2mrKjJl.png';
+        ctx.drawImage(img, this.x, this.y, this.width, this.height);
+      }
+    }
+
+    class Carrot {
+      constructor() {
+        this.x = random(50, canvas.width - 50);
+        this.y = random(50, canvas.height - 150);
+        this.width = 25;
+        this.height = 25;
+      }
+
+      draw() {
+        ctx.drawImage(carrotImg, this.x, this.y, this.width, this.height);
+      }
+    }
+
+    class Obstacle {
+      constructor() {
+        this.x = random(50, canvas.width - 50);
+        this.y = random(50, canvas.height - 150);
+        this.width = 50;
+        this.height = 50;
+      }
+
+      draw() {
+        ctx.drawImage(obstacleImg, this.x, this.y, this.width, this.height);
+      }
+    }
+
+    function update() {
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 50);
+        ctx.font = '36px Arial';
+    ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 50);
+
+    ctx.font = '24px Arial';
+    ctx.fillText('Press "R" to restart', canvas.width / 2, canvas.height / 2 + 100);
+
+    return;
+  }
+
+  timer++;
+
+  if (timer > 600) {
+    level++;
+    timer = 0;
+  }
+
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+  rabbit.draw();
+
+  if (random(1, 100) <= 10 * level) {
+    obstacles.push(new Obstacle());
+  }
+
+  obstacles.forEach(obstacle => {
+    obstacle.draw();
+    if (collides(rabbit, obstacle)) {
+    ctx.font = '36px Arial';
+    ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 50);
+
+    ctx.font = '24px Arial';
+    ctx.fillText('Press "R" to restart', canvas.width / 2, canvas.height / 2 + 100);
+
+    return;
+  }
+
+  timer++;
+
+  if (timer > 600) {
+    level++;
+    timer = 0;
+  }
+
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+  rabbit.draw();
+
+  if (random(1, 100) <= 10 * level) {
+    obstacles.push(new Obstacle());
+  }
+
+  obstacles.forEach(obstacle => {
+    obstacle.draw();
+    if (collides(rabbit, obstacle)) {
+      gameOver = true;
+    }
+    obstacle.y += level;
+  });
+
+  obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+
+  if (random(1, 100) <= 5 * level) {
+    carrots.push(new Carrot());
+  }
+
+  carrots.forEach(carrot => {
+    carrot.draw();
+    if (collides(rabbit, carrot)) {
+      score++;
+      carrots = carrots.filter(c => c !== carrot);
+    }
+    carrot.y += level;
+  });
+
+  carrots = carrots.filter(carrot => carrot.y < canvas.height);
+
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'black';
+  ctx.fillText(`Score: ${score}`, 10, 30);
+
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'black';
+  ctx.fillText(`Level: ${level}`, canvas.width - 100, 30);
+}
+
+let rabbit = new Rabbit();
+let carrots = [];
+let obstacles = [];
+
+function random(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function collides(a, b) {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'ArrowLeft') {
+    rabbit.moveLeft();
+  } else if (e.code === 'ArrowRight') {
+    rabbit.moveRight();
+  } else if (e.code === 'Space' && !rabbit.isJumping) {
+    rabbit.isJumping = true;
+  } else if (e.code === 'KeyR' && gameOver) {
+    score = 0;
+    level = 1;
+    timer = 0;
+    gameOver = false;
+    rabbit = new Rabbit();
+    carrots = [];
+    obstacles = [];
+  }
+});
+
+setInterval(update, 1000/60);
+</script>
+</body>
+</html>
