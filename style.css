@@ -76,6 +76,12 @@ nav img{
   position: relative; 
   cursor: pointer;
 }
+.contact{
+  width: 80%;
+  margin: auto;
+  text-align: center;
+  padding-top: 100px;
+}
 .link-box:hover{ 
   border: 1px solid #f44336; 
   background: #f44336; 
